@@ -1,0 +1,209 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Neutral scale as channel triplets. `.dark` inverts these so every
+       bg-/text-/border-zinc utility inverts with no markup changes. */
+    --c-white: 255 255 255;
+    --c-black: 0 0 0;
+    --z-50: 250 250 250;
+    --z-100: 244 244 245;
+    --z-200: 228 228 231;
+    --z-300: 212 212 216;
+    --z-400: 161 161 170;
+    --z-500: 113 113 122;
+    --z-600: 82 82 91;
+    --z-700: 63 63 70;
+    --z-800: 39 39 42;
+    --z-900: 24 24 27;
+    --z-950: 9 9 11;
+
+    /* Minimalist monochrome — zinc scale. Reference design system. */
+    --primary: 0 0% 0%;
+    --on-primary: 0 0% 100%;
+    --primary-container: 240 5.9% 10%;
+    --on-primary-container: 0 0% 100%;
+    --primary-fixed: 240 4.9% 83.9%;
+    --on-primary-fixed: 240 5.9% 10%;
+    --primary-fixed-dim: 240 3.7% 15.9%;
+    --on-primary-fixed-variant: 240 5% 64.9%;
+
+    --secondary: 240 3.8% 46.1%;
+    --on-secondary: 0 0% 100%;
+    --secondary-container: 240 4.8% 95.9%;
+    --on-secondary-container: 240 5.9% 10%;
+    --secondary-fixed: 240 4.8% 95.9%;
+    --on-secondary-fixed: 240 5.9% 10%;
+    --secondary-fixed-dim: 240 5.9% 90%;
+    --on-secondary-fixed-variant: 240 3.8% 46.1%;
+
+    --tertiary: 240 5.3% 26.1%;
+    --on-tertiary: 0 0% 100%;
+    --tertiary-container: 240 4.8% 95.9%;
+    --on-tertiary-container: 240 5.9% 10%;
+    --tertiary-fixed: 240 4.8% 95.9%;
+    --on-tertiary-fixed: 240 5.9% 10%;
+    --tertiary-fixed-dim: 240 4.9% 83.9%;
+    --on-tertiary-fixed-variant: 240 3.7% 15.9%;
+
+    --error: 0 0% 10%;
+    --on-error: 0 0% 100%;
+    --error-container: 240 4.8% 95.9%;
+    --on-error-container: 240 5.9% 10%;
+
+    --background: 0 0% 98%;
+    --on-background: 240 10% 3.9%;
+    --surface: 0 0% 100%;
+    --on-surface: 240 10% 3.9%;
+    --surface-dim: 0 0% 98%;
+    --surface-bright: 0 0% 100%;
+    --surface-container-lowest: 0 0% 100%;
+    --surface-container-low: 0 0% 98%;
+    --surface-container: 240 4.8% 95.9%;
+    --surface-container-high: 240 5.9% 90%;
+    --surface-container-highest: 240 5.9% 10%;
+    --surface-variant: 240 4.8% 95.9%;
+    --on-surface-variant: 240 5.2% 33.9%;
+    --outline: 240 3.8% 46.1%;
+    --outline-variant: 240 5.9% 90%;
+    --surface-tint: 0 0% 0%;
+    --inverse-surface: 0 0% 0%;
+    --inverse-on-surface: 0 0% 98%;
+    --inverse-primary: 0 0% 100%;
+
+    --shadow-color: 240 5.9% 10%;
+
+    /* shadcn-compatible aliases */
+    --foreground: var(--on-surface);
+    --card: var(--surface-container-lowest);
+    --card-foreground: var(--on-surface);
+    --popover: var(--surface-container-lowest);
+    --popover-foreground: var(--on-surface);
+    --primary-foreground: var(--on-primary);
+    --secondary-foreground: var(--on-secondary);
+    --muted: var(--surface-container-high);
+    --muted-foreground: var(--on-surface-variant);
+    --accent: var(--surface-container-high);
+    --accent-foreground: var(--on-surface);
+    --destructive: var(--error);
+    --destructive-foreground: var(--on-error);
+    --border: var(--outline-variant);
+    --input: var(--outline-variant);
+    --ring: var(--primary);
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    /* Inverted neutral scale: light surfaces become dark and dark text becomes
+       light, so `bg-white` cards, `text-zinc-950` copy and `bg-black` accent
+       bands all stay legible without per-component overrides.
+       The mid/dim text steps are lifted further than a mirror would put them:
+       a grey that reads as "faint" on white is unreadable on near-black. Each
+       of zinc-300/400/500/600 clears 4.5:1 on both the page and card surface. */
+    --c-white: 24 24 27;
+    --c-black: 250 250 250;
+    --z-50: 9 9 11;
+    --z-100: 24 24 27;
+    --z-200: 39 39 42;
+    --z-300: 128 128 136;
+    --z-400: 150 150 158;
+    --z-500: 168 168 176;
+    --z-600: 185 185 192;
+    --z-700: 202 202 208;
+    --z-800: 220 220 226;
+    --z-900: 238 238 242;
+    --z-950: 250 250 250;
+
+    --primary: 0 0% 98%;
+    --on-primary: 240 5.9% 10%;
+    --primary-container: 240 4.9% 83.9%;
+    --on-primary-container: 240 5.9% 10%;
+    --primary-fixed: 240 5.3% 26.1%;
+    --on-primary-fixed: 0 0% 98%;
+    --primary-fixed-dim: 240 5.9% 10%;
+    --on-primary-fixed-variant: 240 5% 64.9%;
+
+    --secondary: 240 5% 64.9%;
+    --on-secondary: 240 5.9% 10%;
+    --secondary-container: 240 3.7% 15.9%;
+    --on-secondary-container: 0 0% 98%;
+    --secondary-fixed: 240 3.7% 15.9%;
+    --on-secondary-fixed: 0 0% 98%;
+    --secondary-fixed-dim: 240 4.9% 83.9%;
+    --on-secondary-fixed-variant: 240 5% 64.9%;
+
+    --tertiary: 240 4.9% 83.9%;
+    --on-tertiary: 240 5.9% 10%;
+    --tertiary-container: 240 3.7% 15.9%;
+    --on-tertiary-container: 0 0% 98%;
+    --tertiary-fixed: 240 3.7% 15.9%;
+    --on-tertiary-fixed: 0 0% 98%;
+    --tertiary-fixed-dim: 240 4.9% 83.9%;
+    --on-tertiary-fixed-variant: 240 3.7% 15.9%;
+
+    --error: 0 0% 98%;
+    --on-error: 240 5.9% 10%;
+    --error-container: 240 3.7% 15.9%;
+    --on-error-container: 0 0% 98%;
+
+    --background: 240 5.9% 10%;
+    --on-background: 0 0% 98%;
+    --surface: 0 0% 0%;
+    --on-surface: 0 0% 98%;
+    --surface-dim: 240 5.9% 10%;
+    --surface-bright: 240 5.3% 26.1%;
+    --surface-container-lowest: 0 0% 0%;
+    --surface-container-low: 240 5.9% 10%;
+    --surface-container: 240 3.7% 15.9%;
+    --surface-container-high: 240 5.3% 26.1%;
+    --surface-container-highest: 240 4.9% 83.9%;
+    --surface-variant: 240 3.7% 15.9%;
+    --on-surface-variant: 240 5% 64.9%;
+    --outline: 240 5% 64.9%;
+    --outline-variant: 240 3.7% 15.9%;
+    --surface-tint: 0 0% 98%;
+    --inverse-surface: 0 0% 98%;
+    --inverse-on-surface: 240 5.9% 10%;
+    --inverse-primary: 0 0% 0%;
+  }
+}
+
+@layer base {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    overscroll-behavior: none;
+    @apply bg-background font-body text-zinc-950 antialiased;
+  }
+  main > :first-child {
+    margin-top: 0 !important;
+  }
+  main > :last-child {
+    margin-bottom: 0 !important;
+  }
+  ::selection {
+    @apply bg-black text-white;
+  }
+  * {
+    @apply border-outline-variant;
+    scrollbar-width: none;
+  }
+  *::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

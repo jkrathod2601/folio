@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Folio is a writing space where drafts become pages, and pages become books. Publish one page at a time." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&amp;family=Gruppo&amp;family=Nunito:ital,wght@0,200..1000;1,200..1000&amp;family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&amp;display=swap" rel="stylesheet" />
+    <title>Folio — One page at a time</title>
+    <script>
+      // Apply the stored theme before first paint so a dark reader never sees
+      // a white flash. Mirrors src/lib/theme.jsx.
+      (function () {
+        try {
+          var stored = localStorage.getItem("bookreading-theme");
+          var dark =
+            stored === "dark" ||
+            (stored !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+          if (dark) document.documentElement.classList.add("dark");
+          document.documentElement.style.colorScheme = dark ? "dark" : "light";
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body class="bg-zinc-50 font-body text-zinc-950 antialiased selection:bg-black selection:text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
