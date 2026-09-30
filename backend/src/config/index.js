@@ -11,6 +11,27 @@ dotenv.config({ path: resolve(root, '.env'), quiet: true })
 const blankToUndefined = (v) => (typeof v === 'string' && v.trim() === '' ? undefined : v)
 
 /**
+ * Env vars are strings; Joi.boolean() only accepts "true"/"false" and rejects
+ * "1", "yes" and "on" outright.
+ *
+ * That rejection is unusually expensive here. The schema is evaluated at module
+ * load, before server.js installs its handlers, so a bad boolean throws during
+ * import: the process dies with status 1 and *no error message at all*, because
+ * nothing has been set up to print one. On Render that reads as a bare
+ * "Exited with status 1" with no cause anywhere. Accepting the obvious spellings
+ * is cheaper than debugging that.
+ */
+const toBoolean = (v) => {
+  if (v === undefined || v === null) return undefined
+  const s = String(v).trim().toLowerCase()
+  if (s === '') return undefined
+  if (['true', '1', 'yes', 'y', 'on'].includes(s)) return true
+  if (['false', '0', 'no', 'n', 'off'].includes(s)) return false
+  // Left as-is so Joi still reports the offending value by name.
+  return v
+}
+
+/**
  * Render (and every PaaS that fronts the app with its own router) can only reach
  * a process bound to all interfaces. 127.0.0.1 is still the right local default —
  * it keeps the dev server off the LAN — but a production deploy that inherits it
@@ -95,7 +116,7 @@ const { value, error } = schema.validate(
       name: process.env.DB_NAME,
       maxPoolSize: process.env.DB_MAX_POOL_SIZE,
       serverSelectionTimeoutMs: process.env.DB_SERVER_SELECTION_TIMEOUT_MS,
-      optional: blankToUndefined(process.env.DB_OPTIONAL),
+      optional: toBoolean(process.env.DB_OPTIONAL),
     },
     auth: {
       accessSecret: blankToUndefined(process.env.JWT_ACCESS_SECRET),
@@ -103,7 +124,7 @@ const { value, error } = schema.validate(
       issuer: process.env.JWT_ISSUER,
       accessTtlMs: process.env.ACCESS_TOKEN_TTL_MS,
       refreshTtlMs: process.env.REFRESH_TOKEN_TTL_MS,
-      cookieSecure: process.env.COOKIE_SECURE,
+      cookieSecure: toBoolean(process.env.COOKIE_SECURE),
       cookieSameSite: process.env.COOKIE_SAMESITE,
       adminEmails: process.env.ADMIN_EMAILS
         ? process.env.ADMIN_EMAILS.split(',')
