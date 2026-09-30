@@ -8,6 +8,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { CONTACT_EMAIL } from "@/pages/PrivacyPage";
 
 const streams = [
   { label: "For You (Curated)", dot: true },
@@ -594,6 +595,21 @@ function RailFooter() {
         <a href="#" className="transition-colors hover:text-black">Beta Reading Guild</a>
         <span>•</span>
         <a href="#" className="transition-colors hover:text-black">Literary Salon</a>
+      </div>
+      {/* Real links, not decoration. Google's OAuth brand review requires the
+          home page to carry a reachable privacy policy and terms of service, so
+          these are load-bearing for verification, not filler. */}
+      <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 lg:justify-start">
+        <Link to="/privacy" className="transition-colors hover:text-black">Privacy</Link>
+        <span>•</span>
+        <Link to="/terms" className="transition-colors hover:text-black">Terms</Link>
+        <span>•</span>
+        <a
+          href={`mailto:${CONTACT_EMAIL}`}
+          className="transition-colors hover:text-black"
+        >
+          Contact
+        </a>
       </div>
       <p className="font-mono text-[11px] text-zinc-400">© 2025 Folio. Strict monochrome edition.</p>
     </footer>

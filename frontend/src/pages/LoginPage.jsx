@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { signInWithGoogle } from "@/lib/api";
 import { useAuthConfig } from "@/hooks/useAuth";
+import { CONTACT_EMAIL } from "@/pages/PrivacyPage";
 
 // Google's brand mark. Recoloured to monochrome to match the rest of the app —
 // which is also why this is inline rather than loaded as Google's asset.
@@ -100,6 +101,29 @@ function LoginPage() {
             ← Browse without signing in
           </Link>
         </p>
+
+        {/* Google's OAuth brand review reads the sign-in page as the public face
+            of the app and requires both legal documents to be reachable from it,
+            not just from the home feed. */}
+        <nav
+          aria-label="Legal"
+          className="mt-4 flex items-center justify-center gap-x-4 gap-y-1 text-center font-body text-xs text-zinc-500"
+        >
+          <Link to="/privacy" className="transition-colors hover:text-black">
+            Privacy Policy
+          </Link>
+          <span aria-hidden="true">•</span>
+          <Link to="/terms" className="transition-colors hover:text-black">
+            Terms of Service
+          </Link>
+          <span aria-hidden="true">•</span>
+          <a
+            href={`mailto:${CONTACT_EMAIL}`}
+            className="transition-colors hover:text-black"
+          >
+            Contact
+          </a>
+        </nav>
       </div>
     </div>
   );

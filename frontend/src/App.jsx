@@ -19,6 +19,7 @@ import { LoginPage } from "@/pages/LoginPage";
 import { AuthCallbackPage } from "@/pages/AuthCallbackPage";
 import { NotFound } from "@/pages/NotFound";
 import { PrivacyPage } from "@/pages/PrivacyPage";
+import { TermsPage } from "@/pages/TermsPage";
 import { AdminPage } from "@/pages/AdminPage";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import {
@@ -97,6 +98,7 @@ function App() {
                     to sign-in and be read as missing content. A legal page does
                     not want the app's navigation either. */}
                 <Route path="/privacy" element={<PrivacyPage />} />
+                <Route path="/terms" element={<TermsPage />} />
                 {/* Everything else needs an account. Folding the guard into the
                     Layout route means a new page cannot be added by accident
                     and shipped publicly — the default is closed, which is the
