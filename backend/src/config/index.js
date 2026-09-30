@@ -35,6 +35,20 @@ const schema = Joi.object({
     name: Joi.string().default('folio'),
     maxPoolSize: Joi.number().integer().min(1).default(10),
     serverSelectionTimeoutMs: Joi.number().integer().min(100).default(5000),
+    /**
+     * Start the HTTP server even when MongoDB is unreachable.
+     *
+     * False by default: a process that boots without its only datastore serves
+     * 500s on every route that touches data, so a green deploy can hide a total
+     * outage. True makes the server useful anyway — health checks answer, and
+     * endpoints that need no database (the auth config probe, /api/ping) still
+     * work — which is what you want while wiring up the connection string.
+     *
+     * The health route reads `dbConnected` and still returns 503 when the
+     * database is down, so this relaxes startup, not the truthfulness of the
+     * health check.
+     */
+    optional: Joi.boolean().default(false),
   },
   auth: {
     accessSecret: Joi.string().min(32).required(),
@@ -81,6 +95,7 @@ const { value, error } = schema.validate(
       name: process.env.DB_NAME,
       maxPoolSize: process.env.DB_MAX_POOL_SIZE,
       serverSelectionTimeoutMs: process.env.DB_SERVER_SELECTION_TIMEOUT_MS,
+      optional: blankToUndefined(process.env.DB_OPTIONAL),
     },
     auth: {
       accessSecret: blankToUndefined(process.env.JWT_ACCESS_SECRET),
