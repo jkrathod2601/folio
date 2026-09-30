@@ -10,13 +10,27 @@ dotenv.config({ path: resolve(root, '.env'), quiet: true })
 
 const blankToUndefined = (v) => (typeof v === 'string' && v.trim() === '' ? undefined : v)
 
+/**
+ * Render (and every PaaS that fronts the app with its own router) can only reach
+ * a process bound to all interfaces. 127.0.0.1 is still the right local default —
+ * it keeps the dev server off the LAN — but a production deploy that inherits it
+ * answers on a port nothing can route to, and the platform reports it as an
+ * application that exited early.
+ */
+const DEFAULT_HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1'
+
 const schema = Joi.object({
   nodeEnv: Joi.string().valid('development', 'test', 'production').default('development'),
-  host: Joi.string().default('127.0.0.1'),
+  host: Joi.string().default(DEFAULT_HOST),
   port: Joi.number().port().default(4000),
   logLevel: Joi.string().default('info'),
   mongoUri: Joi.string().uri({ scheme: ['mongodb', 'mongodb+srv'] }).required(),
   frontendUrl: Joi.string().uri().default('http://localhost:5173'),
+  cors: {
+    // Extra allowed origins beyond frontendUrl. Needed when more than one
+    // frontend deployment talks to the API (a preview deploy, say).
+    allowedOrigins: Joi.array().items(Joi.string().uri()).default([]),
+  },
   db: {
     name: Joi.string().default('folio'),
     maxPoolSize: Joi.number().integer().min(1).default(10),
@@ -51,11 +65,18 @@ const schema = Joi.object({
 const { value, error } = schema.validate(
   {
     nodeEnv: process.env.NODE_ENV,
-    host: process.env.HOST,
-    port: process.env.PORT,
-    logLevel: process.env.LOG_LEVEL,
+    host: blankToUndefined(process.env.HOST),
+    port: blankToUndefined(process.env.PORT),
+    logLevel: blankToUndefined(process.env.LOG_LEVEL),
     mongoUri: process.env.MONGODB_URI,
     frontendUrl: process.env.FRONTEND_URL,
+    cors: {
+      allowedOrigins: process.env.CORS_ALLOWED_ORIGINS
+        ? process.env.CORS_ALLOWED_ORIGINS.split(',')
+            .map((o) => o.trim())
+            .filter(Boolean)
+        : undefined,
+    },
     db: {
       name: process.env.DB_NAME,
       maxPoolSize: process.env.DB_MAX_POOL_SIZE,
@@ -98,6 +119,37 @@ export const isGoogleConfigured = Boolean(
 
 if (isProduction && !isGoogleConfigured) {
   throw new Error('Invalid environment config: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET and GOOGLE_REDIRECT_URI are required in production')
+}
+
+if (isProduction && !config.host.startsWith('0.')) {
+  throw new Error(
+    `Invalid environment config: production must bind 0.0.0.0, got "${config.host}". A platform router cannot reach 127.0.0.1.`,
+  )
+}
+
+// Browsers reject SameSite=None outright unless the cookie is also Secure, and
+// they do it silently — the Set-Cookie is dropped, so the symptom is a user who
+// is mysteriously signed out on every reload rather than an error anywhere.
+if (config.auth.cookieSameSite === 'None' && !config.auth.cookieSecure && !isProduction) {
+  throw new Error(
+    'Invalid environment config: COOKIE_SAMESITE=None requires COOKIE_SECURE=true.',
+  )
+}
+
+/**
+ * Production is a split deployment: SPA on Vercel, API on Render. The refresh
+ * cookie therefore travels cross-site, and a cross-site cookie is only stored
+ * and sent when it is SameSite=None; Secure. Lax is not "more secure" here, it
+ * is simply never sent, which reads as a refresh that fails on every page load.
+ *
+ * Verified rather than assumed: the session is minted by a response to a
+ * cross-origin fetch with credentials, so this is the browser's decision, not
+ * ours. `Secure` is forced on in cookies.js whenever isProduction regardless.
+ */
+if (isProduction && config.frontendUrl.startsWith('http://')) {
+  throw new Error(
+    `Invalid environment config: FRONTEND_URL must be https in production, got "${config.frontendUrl}". A Secure cookie cannot be set over http.`,
+  )
 }
 
 export { root as projectRoot }

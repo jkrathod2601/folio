@@ -14,7 +14,19 @@ import { useAuthStore } from "@/store/auth";
  *                   new access token when this one expires.
  */
 
-const BASE = "/api";
+/**
+ * API base URL.
+ *
+ * Empty in development, so requests stay same-origin on :5173 and the Vite
+ * proxy forwards them to :4000. That is also what keeps the httpOnly refresh
+ * cookie SameSite=Lax over plain http — calling the backend cross-origin from
+ * localhost would force SameSite=None; Secure, which browsers reject.
+ *
+ * In production the frontend (Vercel) and the API (Render) are different
+ * origins, so there is no proxy to inherit and VITE_API_URL has to be the
+ * absolute backend URL. Deploy-time env var, baked in by `vite build`.
+ */
+const BASE = (import.meta.env.VITE_API_URL ?? "").replace(/\/+$/, "") + "/api";
 
 export class ApiError extends Error {
   constructor(message, { status, data } = {}) {
