@@ -18,6 +18,7 @@ import { SettingsPage } from "@/pages/SettingsPage";
 import { LoginPage } from "@/pages/LoginPage";
 import { AuthCallbackPage } from "@/pages/AuthCallbackPage";
 import { NotFound } from "@/pages/NotFound";
+import { PrivacyPage } from "@/pages/PrivacyPage";
 import { AdminPage } from "@/pages/AdminPage";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import {
@@ -90,6 +91,12 @@ function App() {
                     the only place a brand-new session exists yet. */}
                 <Route path="/login" element={<RedirectIfAuthed><LoginPage /></RedirectIfAuthed>} />
                 <Route path="/auth/callback" element={<AuthCallbackPage />} />
+                {/* Public and outside Layout, deliberately. Google fetches this
+                    URL anonymously to review it before it will let the OAuth
+                    client leave testing, so behind RequireAuth it would redirect
+                    to sign-in and be read as missing content. A legal page does
+                    not want the app's navigation either. */}
+                <Route path="/privacy" element={<PrivacyPage />} />
                 {/* Everything else needs an account. Folding the guard into the
                     Layout route means a new page cannot be added by accident
                     and shipped publicly — the default is closed, which is the
