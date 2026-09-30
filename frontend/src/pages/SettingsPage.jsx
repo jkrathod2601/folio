@@ -32,12 +32,22 @@ function Toggle({ checked, onChange, label }) {
   );
 }
 
+/**
+ * A label and its control on one line.
+ *
+ * `flex-wrap` and the `min-w-0` on the label are both load-bearing at 390px. The
+ * Density control is 258px wide and cannot shrink, so beside a non-shrinking
+ * title it overflowed the card by 17px and pushed the whole document to 407px
+ * — which then widened the layout viewport and dragged the fixed header and
+ * scrim out with it. The label yields first, and the control drops to its own
+ * line only when there is genuinely no room.
+ */
 function Row({ icon: Icon, title, description, children }) {
   return (
-    <div className="flex items-center justify-between gap-6 border-b border-zinc-100 py-4 last:border-0">
-      <div className="flex items-start gap-3">
+    <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-b border-zinc-100 py-4 last:border-0">
+      <div className="flex min-w-0 flex-1 items-start gap-3">
         <Icon className="mt-0.5 h-[18px] w-[18px] shrink-0 text-zinc-500" />
-        <div>
+        <div className="min-w-0">
           <p className="font-body text-sm font-bold text-zinc-950">{title}</p>
           <p className="font-code text-xs text-zinc-500">{description}</p>
         </div>
@@ -67,7 +77,7 @@ function SettingsPage() {
         </Row>
 
         <Row icon={Type} title="Density" description="Spacing scale for reading and writing">
-          <div className="flex gap-1 rounded-full border border-zinc-200 bg-zinc-100 p-0.5">
+          <div className="flex shrink-0 gap-1 rounded-full border border-zinc-200 bg-zinc-100 p-0.5">
             {densities.map((d) => (
               <button
                 key={d.id}

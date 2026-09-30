@@ -188,6 +188,50 @@ rendered relatively rather than a hardcoded `"2 hours ago"` string.
 `bookreading-theme` is deliberately **not** renamed to `folio-*` — renaming the
 product must not invalidate saved user themes. Keep it that way.
 
+`folio:sidebar-collapsed` describes a **desktop** preference only. It is
+deliberately not applied below `lg` — see §10a. `mobileNavOpen` is in the same
+store but is **not** persisted: an open drawer is transient state, and
+reloading into one covering the page you asked to see is a bug.
+
+## 10a. The shell is two structures, not one responsive one
+
+Below `lg` the sidebar is an **off-canvas drawer**; from `lg` up it is the fixed
+rail. This is not a styling difference, it is a structural one: the rail shows a
+single-letter wordmark and icon-only rows, the drawer shows the full wordmark and
+every label, and a 68px icon rail inside a 256px phone drawer is nonsense. No
+`lg:`/`hidden:` utility can swap which JSX renders, which is why
+`hooks/useMediaQuery.js` exists and why `Sidebar` branches on `isDesktop`.
+
+**The load-bearing line is `rail = isDesktop && collapsed`.** Every class in
+`Sidebar` branches on `rail`, never on `collapsed`. Branching on `collapsed`
+means a desktop preference persisted to `localStorage` renders the phone drawer
+as 68px of unlabelled icons — the exact bug the change set out to fix, arriving
+from a different direction. There is a test for it.
+
+`sidebarOffset` / `headerOffset` in `store/ui.js` lead with `pl-0` / `left-0` and
+put the rail offsets behind `lg:`. This is why a 390px header previously extended
+to `right=663`.
+
+Consequences worth knowing:
+
+- `main` is `min-h-[100dvh]`, not `min-h-screen`. It already carries `pt-16` to
+  clear the fixed header, so a viewport-height floor made every page 64px taller
+  than the screen and every short page scrolled by one header's worth. `dvh` so
+  mobile browser chrome retracting does not leave the last row under the URL bar.
+- Sign-out lives in the header at `sm:` and up, and in the drawer below it. One
+  control per breakpoint, rather than two fighting for the same 390px.
+- The drawer sets `inert` while closed. A translated-off-screen panel is still
+  focusable, so `aria-hidden` alone would leave the links in the tab order of a
+  keyboard user on a narrow window.
+- Escape closes the drawer, the scrim closes it, navigating closes it (both via
+  `onNavigate` and a `pathname` effect, for back/forward and the auth callback).
+  The body is scroll-locked while open, with scrollbar-width compensation.
+
+`useMediaQuery` uses `useSyncExternalStore`, not `useState` + `useEffect`. The
+hand-rolled version has to `setState` inside its subscribe effect to re-sync when
+`query` changes, which is a second render pass on mount plus a
+cascading-render warning. The media query *is* an external store; treat it as one.
+
 ## 8. Design language
 
 Strict monochrome. No accent colors anywhere.
@@ -320,8 +364,9 @@ on an unlisted/private book did. Use `sameAuthorId(ref, userId)` from
 
 ## 10. Known issues (all cosmetic, none blocking)
 
-- **Mobile overflow at 390px** in the shell pages. Pre-existing. The zen reader
-  is clean at 390.
+- **Mobile shell overflow at 390px** — **fixed**. The shell is now a left drawer
+  below `lg` with full-width content; all 11 routes measure `scrollWidth === 390`
+  except `/profile` (see below). The zen reader is clean at 390.
 - **Contrast audit**: 103 light + 4 dark findings, vs a 93-light baseline before
   the new pages. The 4 dark ones are a single decorative ghost `J` letter
   (`aria-hidden`). The light delta is decorative separators plus an existing
@@ -342,6 +387,10 @@ on an unlisted/private book did. Use `sameAuthorId(ref, userId)` from
   three width strings are duplicated literals in `store/ui.js` on purpose —
   Tailwind only emits CSS for class names it can see in source, so
   `left-[${n}px]` generates nothing. Change all three together.
+- **`/profile` overflows 1440px by 8px.** A `-mx-6` full-bleed row in
+  `MyProfilePage` escapes the `max-w-[1240px]` canvas. Pre-existing and
+  desktop-only. Left alone: `-mx-6` there looks deliberate, and the right fix
+  depends on whether that row is meant to be full-bleed or capped.
 
 ## 11. Verification tooling
 

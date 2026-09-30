@@ -28,10 +28,22 @@ export const SIDEBAR_PADDING = "p-5";
  * Persisted by hand rather than with zustand's `persist` middleware, matching
  * `lib/theme.jsx`, which reads localStorage on init and writes on change.
  */
-export const useUiStore = create((set, get) => ({
+export const useUiStore = create((set) => ({
   sidebarCollapsed: false,
   toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
   setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: Boolean(collapsed) }),
+
+  /**
+   * Off-canvas drawer, the phone counterpart to the collapse rail.
+   *
+   * Deliberately NOT persisted. `sidebarCollapsed` is a preference and belongs
+   * remembered; an open drawer is a transient state, and reloading into one
+   * covering the page you asked to see is a bug, not a convenience.
+   */
+  mobileNavOpen: false,
+  openMobileNav: () => set({ mobileNavOpen: true }),
+  closeMobileNav: () => set({ mobileNavOpen: false }),
+  toggleMobileNav: () => set((s) => ({ mobileNavOpen: !s.mobileNavOpen })),
 }));
 
 // Hydrate once at module load so the very first paint is already the right
@@ -54,8 +66,16 @@ if (typeof window !== "undefined") {
   });
 }
 
-/** The padding class the layout must apply so content clears the sidebar. */
-export const sidebarOffset = (collapsed) => (collapsed ? "pl-[68px]" : "pl-64");
+/**
+ * The padding class the layout must apply so content clears the sidebar.
+ *
+ * `pl-0` below `lg` is the load-bearing part: on a phone the sidebar is a
+ * drawer that sits above the content, so reserving 256px for it would leave
+ * 134px of a 390px screen. The rail only exists from `lg` up.
+ */
+export const sidebarOffset = (collapsed) =>
+  collapsed ? "pl-0 lg:pl-[68px]" : "pl-0 lg:pl-64";
 
 /** The `left-*` class the fixed header must use to clear the sidebar. */
-export const headerOffset = (collapsed) => (collapsed ? "left-[68px]" : "left-64");
+export const headerOffset = (collapsed) =>
+  collapsed ? "left-0 lg:left-[68px]" : "left-0 lg:left-64";
